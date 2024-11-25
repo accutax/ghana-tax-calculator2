@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghana Tax Calculator 2020-2024</title>
+  <style>
+  body {
+      font-family: 'Arial', sans-serif;
+      background-color: #e0f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+  }
+
+  .calculator-container {
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      transform: perspective(1000px) rotateX(10deg);
+  }
+
+  .banner {
+      background: linear-gradient(to right, #ff6f00, #ff8f00);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 20px;
+  }
+
+  .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #333;
+  }
+
+  .header p {
+      font-size: 14px;
+      color: #555;
+  }
+
+  .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+  }
+
+  label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 5px;
+      display: block;
+  }
+
+  input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+  }
+
+  input:hover, select:hover {
+      border-color: #ff6f00;
+  }
+
+  .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+  }
+
+  button {
+      padding: 10px 20px;
+      font-size: 14px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+  }
+
+  button:hover {
+      transform: translateY(-2px);
+  }
+
+  button.calculate {
+      background: #ff6f00;
+  }
+
+  button.reset {
+      background: #d32f2f;
+  }
+
+  button.breakdown {
+      background: #ffa000;
+  }
+
+  .result {
+      margin-top: 20px;
+      background: #f1f8e9;
+      border-radius: 10px;
+      padding: 15px;
+  }
+
+  .result h2 {
+      font-size: 22px;
+      color: #ff6f00;
+      margin: 10px 0;
+  }
+
+  .result h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 10px;
+  }
+
+  .result div {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+  }
+
+  .highlight {
+      color: #ff6f00;
+      font-weight: bold;
+  }
+
+  #breakdownContainer {
+      display: none;
+      margin-top: 15px;
+      text-align: left;
+      font-size: 14px;
+      color: #666;
+      padding: 10px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+  }
+
+  .disclaimer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+  }
+  </style>
+</head>
+<body>
+  <div class="calculator-container">
+      <div class="banner">Updated with Jan. 2024 tax rates!</div>
+
+      <div class="header">
+          <h1>Ghana Tax Calculator</h1>
+          <p>Compute your net income, PAYE income tax, and SSNIT deduction.</p>
+      </div>
+
+      <div class="input-group">
+          <label for="taxYear">Select Tax Year:</label>
+          <select id="taxYear">
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+          </select>
+      </div>
+
+      <div class="input-group">
+          <label for="basicIncome">Monthly Basic Income (GH₵):</label>
+          <input type="number" id="basicIncome" placeholder="Enter amount">
+      </div>
+
+      <div class="input-group">
+          <label for="allowances">Monthly Allowances (GH₵):</label>
+          <input type="number" id="allowances" placeholder="Enter amount">
+      </div>
+
+      <div class="input-group">
+          <label for="taxRelief">Tax Relief (GH₵):</label>
+          <input type="number" id="taxRelief" placeholder="Enter amount">
+      </div>
+
+      <div class="buttons">
+          <button class="calculate" onclick="calculate()">Calculate</button>
+          <button class="reset" onclick="resetFields()">Reset</button>
+          <button class="breakdown" onclick="toggleBreakdown()">Show Breakdown</button>
+      </div>
+
+      <div class="result">
+          <h3>Results</h3>
+          <h2>Net Income: <span id="netIncome" class="highlight">GH₵ 0.00</span></h2>
+      </div>
+
+      <div id="breakdownContainer">
+          <p><b>Detailed Breakdown:</b></p>
+          <p>Gross Income: <span id="grossIncome" class="highlight">GH₵ 0.00</span></p>
+          <p>SSNIT Contribution: <span id="ssnitContribution" class="highlight">GH₵ 0.00</span></p>
+          <p>Taxable Income: <span id="taxableIncome" class="highlight">GH₵ 0.00</span></p>
+          <p>PAYE Tax: <span id="payeTax" class="highlight">GH₵ 0.00</span></p>
+      </div>
+
+      <div class="disclaimer">
+          <p>Disclaimer: This calculator provides estimates only and should not be used for official tax calculations.</p>
+      </div>
+  </div>
+
+  <script>
+  const taxBrackets = {
+      2024: [
+          { limit: 402, rate: 0 },
+          { limit: 512, rate: 0.05 },
+          { limit: 642, rate: 0.10 },
+          { limit: 3642, rate: 0.175 },
+          { limit: Infinity, rate: 0.25 }
+      ],
+      2023: [
+          { limit: 365, rate: 0 },
+          { limit: 475, rate: 0.05 },
+          { limit: 605, rate: 0.10 },
+          { limit: 3605, rate: 0.175 },
+          { limit: Infinity, rate: 0.25 }
+      ],
+      // Add additional years here
+  };
+
+  function calculatePAYE(taxableIncome, year) {
+      let tax = 0;
+      let remainingIncome = taxableIncome;
+      let prevLimit = 0;
+
+      for (let bracket of taxBrackets[year]) {
+          let taxableAmount = Math.min(remainingIncome, bracket.limit - prevLimit);
+          if (taxableAmount > 0) {
+              tax += taxableAmount * bracket.rate;
+              remainingIncome -= taxableAmount;
+          }
+          prevLimit = bracket.limit;
+          if (remainingIncome <= 0) break;
+      }
+      return tax;
+  }
+
+  function formatCurrency(amount) {
+      return `GH₵ ${amount.toFixed(2)}`;
+  }
+
+  function calculate() {
+      const year = document.getElementById('taxYear').value;
+      const basicIncome = parseFloat(document.getElementById('basicIncome').value) || 0;
+      const allowances = parseFloat(document.getElementById('allowances').value) || 0;
+      const taxRelief = parseFloat(document.getElementById('taxRelief').value) || 0;
+
+      const grossIncome = basicIncome + allowances;
+      const ssnitContribution = basicIncome * 0.055;
+      const taxableIncome = grossIncome - ssnitContribution - taxRelief;
+      const payeTax = calculatePAYE(taxableIncome, year);
+      const netIncome = grossIncome - ssnitContribution - payeTax;
+
+      document.getElementById('grossIncome').textContent = formatCurrency(grossIncome);
+      document.getElementById('ssnitContribution').textContent = formatCurrency(ssnitContribution);
+      document.getElementById('taxableIncome').textContent = formatCurrency(taxableIncome);
+      document.getElementById('payeTax').textContent = formatCurrency(payeTax);
+      document.getElementById('netIncome').textContent = formatCurrency(netIncome);
+  }
+
+  function toggleBreakdown() {
+      const breakdownContainer = document.getElementById('breakdownContainer');
+      if (breakdownContainer.style.display === "none" || breakdownContainer.style.display === "") {
+          breakdownContainer.style.display = "block";
+      } else {
+          breakdownContainer.style.display = "none";
+      }
+  }
+
+  function resetFields() {
+      document.getElementById('taxYear').value = '2024';
+      document.getElementById('basicIncome').value = '';
+      document.getElementById('allowances').value = '';
+      document.getElementById('taxRelief').value = '';
+      document.getElementById('grossIncome').textContent = 'GH₵ 0.00';
+      document.getElementById('ssnitContribution').textContent = 'GH₵ 0.00';
+      document.getElementById('taxableIncome').textContent = 'GH₵ 0.00';
+      document.getElementById('payeTax').textContent = 'GH₵ 0.00';
+      document.getElementById('netIncome').textContent = 'GH₵ 0.00';
+      document.getElementById('breakdownContainer').style.display = "none";
+  }
+  </script>
+</body>
+</html>
