@@ -1,23 +1,265 @@
-<div class="results-container">
-  <h3>Tax Calculation Results</h3>
-  <div class="result-item">
-      <span class="label">Gross Income:</span>
-      <span class="value">GHS <span id="grossIncome">0.00</span></span>
-  </div>
-  <div class="result-item">
-      <span class="label">SSNIT Contribution (5.5%):</span>
-      <span class="value">GHS <span id="ssnitAmount">0.00</span></span>
-  </div>
-  <div class="result-item">
-      <span class="label">Taxable Income:</span>
-      <span class="value">GHS <span id="taxableIncome">0.00</span></span>
-  </div>
-  <div class="result-item">
-      <span class="label">Tax Payable:</span>
-      <span class="value">GHS <span id="taxPayable">0.00</span></span>
-  </div>
-  <div class="result-item total">
-      <span class="label">Net Income:</span>
-      <span class="value">GHS <span id="netIncome">0.00</span></span>
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghana Tax Calculator 2024</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .update-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(74, 175, 80, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button#calculate {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button#reset {
+            background-color: #f44336;
+            color: white;
+        }
+
+        button#breakdown {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-row.total {
+            font-weight: bold;
+            border-top: 2px solid #ddd;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ghana Tax Calculator 2024</h1>
+            <div class="update-banner">Updated with 2024 Tax Rates</div>
+        </div>
+
+        <form id="taxForm">
+            <div class="form-group">
+                <label for="basicIncome">Monthly Basic Income (GHS)</label>
+                <input type="number" id="basicIncome" required min="0" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="allowances">Monthly Allowances (GHS)</label>
+                <input type="number" id="allowances" required min="0" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="taxRelief">Monthly Tax Relief (GHS)</label>
+                <input type="number" id="taxRelief" required min="0" step="0.01">
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="calculate">Calculate</button>
+                <button type="button" id="reset">Reset</button>
+                <button type="button" id="breakdown">Show Breakdown</button>
+            </div>
+        </form>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function calculateTax(income) {
+            const brackets = [
+                { limit: 402, rate: 0 },
+                { limit: 500, rate: 0.05 },
+                { limit: 1000, rate: 0.10 },
+                { limit: 1500, rate: 0.175 },
+                { limit: 3000, rate: 0.25 },
+                { limit: Infinity, rate: 0.30 }
+            ];
+
+            let tax = 0;
+            let remainingIncome = income;
+            let previousLimit = 0;
+
+            for (const bracket of brackets) {
+                const taxableAmount = Math.min(remainingIncome, bracket.limit - previousLimit);
+                if (taxableAmount <= 0) break;
+
+                tax += taxableAmount * bracket.rate;
+                remainingIncome -= taxableAmount;
+                previousLimit = bracket.limit;
+            }
+
+            return tax;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-GH', {
+                style: 'currency',
+                currency: 'GHS',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="results-container">
+                    <h3>Tax Calculation Results</h3>
+                    <div class="result-row">
+                        <span>Gross Income:</span>
+                        <span>${formatCurrency(results.grossIncome)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>SSNIT (5.5%):</span>
+                        <span>${formatCurrency(results.ssnit)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Taxable Income:</span>
+                        <span>${formatCurrency(results.taxableIncome)}</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Tax Payable:</span>
+                        <span>${formatCurrency(results.tax)}</span>
+                    </div>
+                    <div class="result-row total">
+                        <span>Net Income:</span>
+                        <span>${formatCurrency(results.netIncome)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            const basicIncome = parseFloat(document.getElementById('basicIncome').value) || 0;
+            const allowances = parseFloat(document.getElementById('allowances').value) || 0;
+            const taxRelief = parseFloat(document.getElementById('taxRelief').value) || 0;
+
+            const grossIncome = basicIncome + allowances;
+            const ssnit = grossIncome * 0.055;
+            const taxableIncome = grossIncome - ssnit - taxRelief;
+            const tax = calculateTax(taxableIncome);
+            const netIncome = grossIncome - ssnit - tax;
+
+            displayResults({
+                grossIncome,
+                ssnit,
+                taxableIncome,
+                tax,
+                netIncome
+            });
+        });
+
+        document.getElementById('reset').addEventListener('click', function() {
+            document.getElementById('taxForm').reset();
+            document.getElementById('results').innerHTML = '';
+        });
+
+        document.getElementById('breakdown').addEventListener('click', function() {
+            // Add tax breakdown logic here
+            alert('Tax breakdown feature coming soon!');
+        });
+    </script>
+</body>
+</html>
