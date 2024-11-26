@@ -1,0 +1,24 @@
+@media screen and (max-width: 768px) {
+  .container {
+      padding: 15px;
+      margin: 10px;
+  }
+
+  .button-group {
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  button {
+      width: 100%;
+  }
+
+  .result-item {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  .value {
+      margin-top: 5px;
+  }
+}

@@ -1,0 +1,9 @@
+// Update the tax brackets for 2024
+const taxBrackets = [
+  { threshold: 402, rate: 0 },
+  { threshold: 500, rate: 0.05 },
+  { threshold: 1000, rate: 0.10 },
+  { threshold: 1500, rate: 0.175 },
+  { threshold: 3000, rate: 0.25 },
+  { threshold: Infinity, rate: 0.30 }
+];
